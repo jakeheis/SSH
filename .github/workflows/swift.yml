@@ -4,25 +4,17 @@ on: [push, pull_request]
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [macOS-latest]
-        swift: [5.2.2]
-    runs-on: ${{ matrix.os }}
-    env:
-      SWIFT_VERSION: ${{ matrix.swift }}
-      SWIFT_EXEC: .swiftenv/shims/swift
-      PKG_CONFIG_PATH: /usr/local/Cellar/openssl@1.1/1.1.1g/lib/pkgconfig
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install swift
-      run: |
-        git clone https://github.com/kylef/swiftenv.git ~/.swiftenv
-        ~/.swiftenv/bin/swiftenv install "$SWIFT_VERSION" || true
-        ~/.swiftenv/bin/swiftenv rehash
-    - name: Build
-      run: |
-        brew install libssh2
-        brew install pkg-config
-        ~/$SWIFT_EXEC --version
-        ~/$SWIFT_EXEC build
+        name: Build
+        runs-on: macOS-latest
+        steps:
+        - name: Select Xcode
+          run: xcversion select 12.2
+
+        - name: Check XCode Version
+          run: xcodebuild -version
+
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: macOS Native
+          run: swift build
